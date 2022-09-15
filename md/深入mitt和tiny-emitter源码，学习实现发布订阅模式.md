@@ -2,10 +2,11 @@
 在我们学习js过程中，用户点击了某个按钮，然后网页进行某个交互，那么这是如何做到的呢？在js中提供了`addEventListener`和`removeEventListener`两个API来监听和移除事件，用户点击某个节点后，该DOM元素产生了一个click事件并派发出去，`addEventListener`监听到事件后执行某个操作。那么我们该如何实现对应的事件注册、派发、移除等功能呢？接下来我们来看看 `mitt` 和 `tiny-emitter` 这两个库吧。
 
 ## mitt 分析
-[mitt 详细使用](https://github.com/developit/mitt)
-
 - 体积小，200b
 - 简单，基于单个函数的事件发射器或发布订阅。
+  
+[mitt 详细使用](https://github.com/developit/mitt)
+
 
 ```js
 import mitt from 'mitt'
@@ -38,7 +39,7 @@ emitter.off('foo', onFoo)  // unlisten
 3. `off(type, [handler])`来取消某个事件的某个处理函数，根据 type 找到对应的事件处理数组，对比 handler 是否相等，相等则删除该处理函数，不传则删除该事件的全部处理函数
 4. `emit(type, [evt])`来派发事件，根据 type 找到对应的事件处理数组并依次执行，传入参数 evt(对象最好，传多个参数只会取到第一个)
 
-具体的可参考[源码实现](https://github.com/developit/mitt/blob/main/src/index.ts)
+具体的可参考[源码实现](https://github.com/developit/mitt/blob/main/src/index.ts)：
 ```js
 // 导出函数 mitt ，调用该函数返回一个 对象，该对象包含 all、on、off、emit 方法
 export default function mitt<Events extends Record<EventType, unknown>>(
@@ -62,7 +63,7 @@ export default function mitt<Events extends Record<EventType, unknown>>(
 			}
 			else {
 				// 不存在，说明这是第一次 注册该事件，那么 设置 type 的属性值为 [handler]
-				all!.set(type, [handler] as EventHandlerList<Events[keyof Events]>); // !.是TS断言，意思是all中必有set这个东东
+				all!.set(type, [handler] as EventHandlerList<Events[keyof Events]>); // !.是TS断言，意思是all中必有set这个东西
 			}
 		},
 
@@ -120,12 +121,13 @@ export default function mitt<Events extends Record<EventType, unknown>>(
 2. `emit(type, [evt])`中只能接受一个参数，要是传多个参数需要将多个参数合并成对象传入，然后在事件处理函数中解构
 
 ## tiny-emitter 分析
-[tiny-emitter 详细使用](https://github.com/scottcorgan/tiny-emitter)
 
 - 体积小，<1k
 - 简单，基于构造函数和原型的事件发射器。
 
-在 tiny-emitter 这个库中，定义了函数`E`，修改`E.prototype`，在原型对象中引入了`on(name, callback, ctx)`、`once(name, callback, ctx)`、`emit(name)`、`off(name, callback)`四个方法，整体功能和 mitt 大同小异，直接看[源代码](https://github.com/scottcorgan/tiny-emitter/blob/master/index.js)吧
+[tiny-emitter 详细使用](https://github.com/scottcorgan/tiny-emitter)
+
+在 tiny-emitter 这个库中，定义了函数`E`，修改`E.prototype`，在原型对象中引入了`on(name, callback, ctx)`、`once(name, callback, ctx)`、`emit(name)`、`off(name, callback)`四个方法，整体功能和 mitt 大同小异，直接看[源代码](https://github.com/scottcorgan/tiny-emitter/blob/master/index.js)：
 ```js
 function E () {
   // 使其为空让其很容易继承
