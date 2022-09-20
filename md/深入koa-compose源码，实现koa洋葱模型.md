@@ -122,7 +122,7 @@ function compose (middleware) {
   }
 }
 ```
-接着我们来看 dispatch 函数。
+接着我们来看 `dispatch` 函数。
 
 ### dispatch 函数
 ```js

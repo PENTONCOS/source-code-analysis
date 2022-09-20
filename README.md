@@ -12,3 +12,4 @@
 - [如何实现underscore中的防抖函数](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/如何实现underscore中的防抖函数.md)
 - [深入mitt和tiny-emitter源码，学习实现发布订阅模式](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/深入mitt和tiny-emitter源码，学习实现发布订阅模式.md)
 - [深入p-limit源码，学习限制并发数](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/深入p-limit源码，学习限制并发数.md)
+- [深入koa-compose源码，实现koa洋葱模型](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/深入koa-compose源码，实现koa洋葱模型.md)
