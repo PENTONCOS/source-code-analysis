@@ -11,3 +11,4 @@
 - [整理Vue3 源码中一些实用的工具函数](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/整理Vue3%20源码中一些实用的工具函数.md)
 - [如何实现underscore中的防抖函数](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/如何实现underscore中的防抖函数.md)
 - [深入mitt和tiny-emitter源码，学习实现发布订阅模式](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/深入mitt和tiny-emitter源码，学习实现发布订阅模式.md)
+- [深入p-limit源码，学习限制并发数](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/深入p-limit源码，学习限制并发数.md)
