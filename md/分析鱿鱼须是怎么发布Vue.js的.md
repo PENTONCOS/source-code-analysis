@@ -4,86 +4,72 @@
 
 ## 环境准备
 
-打开 [vue-next](https://github.com/vuejs/core)， 开源项目一般都能在 README.md 或者 .github/contributing.md 找到贡献指南。
+打开 [vue-next](https://github.com/vuejs/core)， 开源项目一般都能在 `README.md` 或者 [.github/contributing.md](https://github.com/vuejs/core/blob/main/.github/contributing.md) 找到贡献指南。
 
 而贡献指南写了很多关于参与项目开发的信息。比如怎么跑起来，项目目录结构是怎样的。怎么投入开发，需要哪些知识储备等。
 
-你需要确保 Node.js 版本是 10+, 而且 yarn 的版本是 1.x Yarn 1.x。
+```js
+git clone https://github.com/vuejs/core.git
+cd core
+// 安装 pnpm
+npm install --global pnpm
+// 安装依赖
+pnpm i
+// "vue-version": "3.2.39"
+// "node-version": "v16.14.2"
+// "pnpm-version": "7.7.0"
+```
 
-你安装的 Node.js 版本很可能是低于 10。最简单的办法就是去官网重新安装。也可以使用 nvm等管理Node.js版本。
+### 严格校验使用 pnpm 安装依赖
 
-node -v
-# v14.16.0
-# 全局安装 yarn
+接着我们来看下 `vuejs/core/package.json` 文件。
 
-# 建议克隆我的项目
-git clone https://github.com/lxchuan12/vue-next-analysis.git
-cd vue-next-analysis/vue-next
-
-# 或者克隆官方项目
-git clone https://github.com/vuejs/vue-next.git
-cd vue-next
-
-# 安装 yarn
-npm install --global yarn
-# 安装依赖
-yarn # install the dependencies of the project
-# yarn release
-2.1 严格校验使用 yarn 安装依赖
-接着我们来看下 vue-next/package.json 文件。
-
-// vue-next/package.json
+```js
+// vuejs/core/package.json
 {
-    "private": true,
-    "version": "3.2.4",
-    "workspaces": [
-        "packages/*"
-    ],
-    "scripts": {
-        // --dry 参数是我加的，如果你是调试 代码也建议加
-        // 不执行测试和编译 、不执行 推送git等操作
-        // 也就是说空跑，只是打印，后文再详细讲述
-        "release": "node scripts/release.js --dry",
-        "preinstall": "node ./scripts/checkYarn.js",
-    }
+  "private": true,
+  "scripts": {
+    // --dry 参数是我加的，如果你是调试 代码也建议加
+    // 不执行测试和编译 、不执行 推送git等操作
+    // 也就是说空跑，只是打印，后文再详细讲述
+    "release": "node scripts/release.js --dry",
+    "preinstall": "node ./scripts/preinstall.js",
 }
-如果你尝试使用 npm 安装依赖，应该是会报错的。为啥会报错呢。 因为 package.json 有个前置 preinstall node ./scripts/checkYarn.js 判断强制要求是使用yarn安装。
+}
+```
 
-scripts/checkYarn.js文件如下，也就是在process.env环境变量中找执行路径npm_execpath，如果不是yarn就输出警告，且进程结束。
+如果你尝试使用 `npm` 或 `yarn` 安装依赖，会报错。 因为 `package.json` 有个前置 `preinstall` `node ./scripts/preinstall.js` 判断强制要求是使用`pnpm`安装。
 
-// scripts/checkYarn.js
-if (!/yarn\.js$/.test(process.env.npm_execpath || '')) {
+`scripts/preinstall.js`文件如下，也就是在`process.env`环境变量中找执行路径`npm_execpath`，如果不是`pnpm`就输出警告，且进程结束。
+```js
+// scripts/preinstall.js
+if (!/pnpm/.test(process.env.npm_execpath || '')) {
   console.warn(
-    '\u001b[33mThis repository requires Yarn 1.x for scripts to work properly.\u001b[39m\n'
+  `\u001b[33mThis repository requires using pnpm as the package manager ` +
+    ` for scripts to work properly.\u001b[39m\n`
   )
   process.exit(1)
 }
-如果你想忽略这个前置的钩子判断，可以使用yarn --ignore-scripts 命令。也有后置的钩子post。更多详细的可以查看 npm 文档
+```
 
-2.2 调试 vue-next/scripts/release.js 文件
-接着我们来学习如何调试 vue-next/scripts/release.js文件。
+如果你想忽略这个前置的钩子判断，可以使用`pnpm --ignore-scripts` 命令。也有后置的钩子`post`。
 
-这里声明下我的 VSCode 版本 是 1.59.0 应该 1.50.0 起就可以按以下步骤调试了。
+### 调试 vuejs/core/scripts/release.js 文件
 
-code -v
-# 1.59.0
-找到 vue-next/package.json 文件打开，然后在 scripts 上方，会有debug（调试）按钮，点击后，选择 release。即可进入调试模式。
+接着我们来学习如何调试 `vuejs/core/scripts/release.js` 文件。
 
-debugger
+找到 `vuejs/core/package.json` 文件打开，然后在 `scripts` 上方，会有`debug`（调试）按钮，点击后，选择 `release`。即可进入调试模式。
 
-这时终端会如下图所示，有 Debugger attached. 输出。这时放张图。
+![](https://github.com/lxchuan12/vue-next-analysis/raw/master/md/release/images/release-debugger.png)
 
-terminal
+## 文件开头的一些依赖引入和函数声明
 
-更多 nodejs 调试相关 可以查看官方文档
-
-学会调试后，先大致走一遍流程，在关键地方多打上几个断点多走几遍，就能猜测到源码意图了。
-
-3 文件开头的一些依赖引入和函数声明
 我们可以跟着断点来，先看文件开头的一些依赖引入和函数声明
 
-3.1 第一部分
-// vue-next/scripts/release.js
+### 第一部分
+
+```js
+// vuejs/core/scripts/release.js
 const args = require('minimist')(process.argv.slice(2))
 // 文件模块
 const fs = require('fs')
@@ -97,13 +83,16 @@ const { prompt } = require('enquirer')
 
 // 执行子进程命令   简单说 就是在终端命令行执行 命令
 const execa = require('execa')
-通过依赖，我们可以在 node_modules 找到对应安装的依赖。也可以找到其README和github仓库。
+```
 
-3.1.1 minimist 命令行参数解析
-minimist
+通过依赖，我们可以在 `node_modules` 找到对应安装的依赖。也可以找到其`README`和`github`仓库。
+
+#### minimist 命令行参数解析
+
+[minimist](https://www.npmjs.com/package/minimist)
 
 简单说，这个库，就是解析命令行参数的。看例子，我们比较容易看懂传参和解析结果。
-
+```
 $ node example/parse.js -a beep -b boop
 { _: [], a: 'beep', b: 'boop' }
 
@@ -117,34 +106,43 @@ $ node example/parse.js -x 3 -y 4 -n5 -abc --beep=boop foo bar baz
   c: true,
   beep: 'boop' }
 const args = require('minimist')(process.argv.slice(2))
-其中process.argv的第一和第二个元素是Node可执行文件和被执行JavaScript文件的完全限定的文件系统路径，无论你是否这样输入他们。
+```
+其中`process.argv`的第一和第二个元素是Node可执行文件和被执行JavaScript文件的完全限定的文件系统路径，无论你是否这样输入他们。
 
-3.1.2 chalk 终端多色彩输出
-chalk
+#### chalk 终端多色彩输出
+
+[chalk](https://github.com/chalk/chalk)
 
 简单说，这个是用于终端显示多色彩输出。
 
-3.1.3 semver 语义化版本
-semver
+### semver 语义化版本
 
-语义化版本的nodejs实现，用于版本校验比较等。关于语义化版本可以看这个语义化版本 2.0.0 文档
+[semver](https://github.com/npm/node-semver)
 
-版本格式：主版本号.次版本号.修订号，版本号递增规则如下：
-主版本号：当你做了不兼容的 API 修改，
-次版本号：当你做了向下兼容的功能性新增，
-修订号：当你做了向下兼容的问题修正。
-先行版本号及版本编译信息可以加到“主版本号.次版本号.修订号”的后面，作为延伸。
+语义化版本的nodejs实现，用于版本校验比较等。关于语义化版本可以看这个[语义化版本 2.0.0 文档](https://semver.org/lang/zh-CN/)
 
-3.1.4 enquirer 交互式询问 CLI
+> 版本格式：主版本号.次版本号.修订号，版本号递增规则如下：
+> 
+> 主版本号：当你做了不兼容的 API 修改，
+> 
+> 次版本号：当你做了向下兼容的功能性新增，
+> 
+> 修订号：当你做了向下兼容的问题修正。
+> 
+> 先行版本号及版本编译信息可以加到“主版本号.次版本号.修订号”的后面，作为延伸。
+
+#### enquirer 交互式询问 CLI
+
 简单说就是交互式询问用户输入。
 
-enquirer
+[enquirer](https://github.com/enquirer/enquirer)
 
-3.1.5 execa 执行命令
-简单说就是执行命令的，类似我们自己在终端输入命令，比如 echo 若川。
+#### execa 执行命令
+简单说就是执行命令的，类似我们自己在终端输入命令，比如 `echo jiapandong`。
 
-execa
+[execa](https://github.com/sindresorhus/execa)
 
+```js
 // 例子
 const execa = require('execa');
 
@@ -153,23 +151,25 @@ const execa = require('execa');
   console.log(stdout);
   //=> 'unicorns'
 })();
-看完了第一部分，接着我们来看第二部分。
+```
 
-3.2 第二部分
-// vue-next/scripts/release.js
+### 第二部分
 
-// 对应 yarn run release --preid=beta
+```js
+// vuejs/core/scripts/release.js
+
+// 对应 pnpm run release --preid=beta
 // beta
 const preId =
   args.preid ||
   (semver.prerelease(currentVersion) && semver.prerelease(currentVersion)[0])
-// 对应 yarn run release --dry
+// 对应 pnpm run release --dry
 // true
 const isDryRun = args.dry
-// 对应 yarn run release --skipTests
+// 对应 pnpm run release --skipTests
 // true 跳过测试
 const skipTests = args.skipTests
-// 对应 yarn run release --skipBuild 
+// 对应 pnpm run release --skipBuild 
 // true
 const skipBuild = args.skipBuild
 
@@ -177,10 +177,11 @@ const skipBuild = args.skipBuild
 const packages = fs
   .readdirSync(path.resolve(__dirname, '../packages'))
   .filter(p => !p.endsWith('.ts') && !p.startsWith('.'))
-第二部分相对简单，继续看第三部分。
+```
 
-3.3 第三部分
-// vue-next/scripts/release.js
+### 第三部分
+```js
+// vuejs/core/scripts/release.js
 
 // 跳过的包
 const skippedPackages = []
@@ -194,14 +195,19 @@ const versionIncrements = [
 ]
 
 const inc = i => semver.inc(currentVersion, i, preId)
-这一块可能不是很好理解。inc是生成一个版本。更多可以查看semver文档
+```
+`inc`是生成一个版本。更多可以查看[semver文档](https://github.com/npm/node-semver#prerelease-identifiers)
 
+```js
 semver.inc('3.2.4', 'prerelease', 'beta')
 // 3.2.5-beta.0
-3.4 第四部分
+```
+### 第四部分
+
 第四部分声明了一些执行脚本函数等
 
-// vue-next/scripts/release.js
+```js
+// vuejs/core/scripts/release.js
 
 // 获取 bin 命令
 const bin = name => path.resolve(__dirname, '../node_modules/.bin/' + name)
@@ -216,35 +222,46 @@ const getPkgRoot = pkg => path.resolve(__dirname, '../packages/' + pkg)
 
 // 控制台输出
 const step = msg => console.log(chalk.cyan(msg))
-3.4.1 bin 函数
-获取 node_modules/.bin/ 目录下的命令，整个文件就用了一次。
+```
 
+#### bin 函数
+
+获取 `node_modules/.bin/` 目录下的命令，整个文件就用了一次。
+```js
 bin('jest')
-相当于在命令终端，项目根目录 运行 ./node_modules/.bin/jest 命令。
+```
 
-3.4.2 run、dryRun、runIfNotDry
+相当于在命令终端，项目根目录 运行 `./node_modules/.bin/jest` 命令。
+
+#### run、dryRun、runIfNotDry
+```js
 const run = (bin, args, opts = {}) =>
   execa(bin, args, { stdio: 'inherit', ...opts })
 const dryRun = (bin, args, opts = {}) =>
   console.log(chalk.blue(`[dryrun] ${bin} ${args.join(' ')}`), opts)
 const runIfNotDry = isDryRun ? dryRun : run
-run 真实在终端跑命令，比如 yarn build --release
+```
+`run` 真实在终端跑命令，比如 `pnpm build --release`
 
-dryRun 则是不跑，只是 console.log(); 打印 'yarn build --release'
+`dryRun` 则是不跑，只是 `console.log()`; 打印 `'pnpm build --release'`
 
-runIfNotDry 如果不是空跑就执行命令。isDryRun 参数是通过控制台输入的。yarn run release --dry这样就是true。runIfNotDry就是只是打印，不执行命令。这样设计的好处在于，可以有时不想直接提交，要先看看执行命令的结果。不得不说，尤大就是会玩。
+`runIfNotDry` 如果不是空跑就执行命令。`isDryRun` 参数是通过控制台输入的。`pnpm run release --dry`这样就是`true`。`runIfNotDry`就是只是打印，不执行命令。这样设计的好处在于，可以有时不想直接提交，要先看看执行命令的结果。
 
-在 main 函数末尾，也可以看到类似的提示。可以用git diff先看看文件修改。
+在 `main` 函数末尾，也可以看到类似的提示。可以用`git diff`先看看文件修改。
 
+```js
 if (isDryRun) {
   console.log(`\nDry run finished - run git diff to see package changes.`)
 }
-看完了文件开头的一些依赖引入和函数声明等，我们接着来看main主入口函数。
+```
 
-4 main 主流程
-第4节，主要都是main 函数拆解分析。
+看完了文件开头的一些依赖引入和函数声明等，我们接着来看`main`主入口函数。
 
-4.1 流程梳理 main 函数
+## main 主流程
+第4节，主要都是`main` 函数拆解分析。
+
+### 流程梳理 main 函数
+```js
 const chalk = require('chalk')
 const step = msg => console.log(chalk.cyan(msg))
 // 前面一堆依赖引入和函数定义等
@@ -253,13 +270,18 @@ async function main(){
 
   // run tests before release
   step('\nRunning tests...')
+
   // update all package versions and inter-dependencies
   step('\nUpdating cross dependencies...')
+
   // build all packages with types
   step('\nBuilding all packages...')
 
   // generate changelog
   step('\nCommitting changes...')
+
+  // update pnpm-lock.yaml
+  step('\nUpdating lockfile...')
 
   // publish packages
   step('\nPublishing packages...')
@@ -271,19 +293,15 @@ async function main(){
 main().catch(err => {
   console.error(err)
 })
-上面的main函数省略了很多具体函数实现。接下来我们拆解 main 函数。
+```
 
-4.2 确认要发布的版本
-第一段代码虽然比较长，但是还好理解。 主要就是确认要发布的版本。
+上面的`main`函数省略了很多具体函数实现。接下来我们拆解 main 函数。
 
-调试时，我们看下这段的两张截图，就好理解啦。
+### 确认要发布的版本
 
-终端输出选择版本号
-
-终端输入确认版本号
-
-// 根据上文 mini 这句代码意思是 yarn run release 3.2.4 
-// 取到参数 3.2.4
+```js
+// 根据上文 mini 这句代码意思是 pnpm run release 3.2.41 
+// 取到参数 3.2.41
 let targetVersion = args._[0]
 
 if (!targetVersion) {
@@ -336,9 +354,14 @@ if (!skipTests && !isDryRun) {
 } else {
   console.log(`(skipped)`)
 }
-4.4 更新所有包的版本号和内部 vue 相关依赖版本号
-这一部分，就是更新根目录下package.json 的版本号和所有 packages 的版本号。
+```
 
+
+### 更新所有包的版本号和内部 vue 相关依赖版本号
+
+这一部分，就是更新根目录下`package.json` 的版本号和所有 `packages` 的版本号。
+
+```js
 // update all package versions and inter-dependencies
 step('\nUpdating cross dependencies...')
 updateVersions(targetVersion)
@@ -348,7 +371,9 @@ function updateVersions(version) {
   // 2. update all packages
   packages.forEach(p => updatePackage(getPkgRoot(p), version))
 }
-4.4.1 updatePackage 更新包的版本号
+```
+#### updatePackage 更新包的版本号
+```js
 function updatePackage(pkgRoot, version) {
   const pkgPath = path.resolve(pkgRoot, 'package.json')
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
@@ -357,16 +382,16 @@ function updatePackage(pkgRoot, version) {
   updateDeps(pkg, 'peerDependencies', version)
   fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n')
 }
+```
 主要就是三种修改。
-
+```
 1. 自己本身 package.json 的版本号
 2. packages.json 中 dependencies 中 vue 相关的依赖修改
 3. packages.json 中 peerDependencies 中 vue 相关的依赖修改
-一图胜千言。我们执行yarn release --dry 后 git diff 查看的 git 修改，部分截图如下。
+```
 
-更新的版本号举例
-
-4.4.2 updateDeps 更新内部 vue 相关依赖的版本号
+#### updateDeps 更新内部 vue 相关依赖的版本号
+```js
 function updateDeps(pkg, depType, version) {
   const deps = pkg[depType]
   if (!deps) return
@@ -382,16 +407,10 @@ function updateDeps(pkg, depType, version) {
     }
   })
 }
-一图胜千言。我们在终端执行yarn release --dry。会看到这样是输出。
+```
 
-更新 Vue 相关依赖的终端输出
-
-也就是这句代码输出的。
-
-console.log(
-  chalk.yellow(`${pkg.name} -> ${depType} -> ${dep}@${version}`)
-)
-4.5 打包编译所有包
+### 打包编译所有包
+```js
 // build all packages with types
 step('\nBuilding all packages...')
 if (!skipBuild && !isDryRun) {
@@ -402,16 +421,21 @@ if (!skipBuild && !isDryRun) {
 } else {
   console.log(`(skipped)`)
 }
-4.6 生成 changelog
+```
+### 生成 changelog
+```js
 // generate changelog
 await run(`yarn`, ['changelog'])
-yarn changelog 对应的脚本是conventional-changelog -p angular -i CHANGELOG.md -s。
+```
+`pnpm changelog` 对应的脚本是`conventional-changelog -p angular -i CHANGELOG.md -s`。
 
-4.7 提交代码
-经过更新版本号后，有文件改动，于是git diff。 是否有文件改动，如果有提交。
+### 提交代码
 
-git add -A git commit -m 'release: v${targetVersion}'
+经过更新版本号后，有文件改动，于是`git diff`。 是否有文件改动，如果有提交。
 
+`git add -A` `git commit -m 'release: v${targetVersion}'`
+
+```js
 const { stdout } = await run('git', ['diff'], { stdio: 'pipe' })
 if (stdout) {
   step('\nCommitting changes...')
@@ -420,24 +444,30 @@ if (stdout) {
 } else {
   console.log('No changes to commit.')
 }
-4.8 发布包
+```
+### 发布包
+```js
 // publish packages
 step('\nPublishing packages...')
 for (const pkg of packages) {
   await publishPackage(pkg, targetVersion, runIfNotDry)
 }
-这段函数比较长，可以不用细看，简单说就是 yarn publish 发布包。 我们 yarn release --dry后，这块函数在终端输出的如下：
+```
+这段函数比较长，可以不用细看，简单说就是 `pnpm publish` 发布包。
 
-发布终端输出命令
 
-值得一提的是，如果是 vue 默认有个 tag 为 next。当 Vue 3.x 是默认时删除。
+值得一提的是，如果是 `vue` 默认有个 `tag` 为 `next`。当 `Vue 3.x` 是默认时删除。
 
+```js
 } else if (pkgName === 'vue') {
   // TODO remove when 3.x becomes default
   releaseTag = 'next'
 }
-也就是为什么我们现在安装 vue3 还是 npm i vue@next命令。
+```
 
+也就是为什么我们现在安装 `vue3` 还是 `pnpm i vue@next`命令。
+
+```js
 async function publishPackage(pkgName, version, runIfNotDry) {
   // 如果在 跳过包里 则跳过
   if (skippedPackages.includes(pkgName)) {
@@ -466,12 +496,11 @@ async function publishPackage(pkgName, version, runIfNotDry) {
     releaseTag = 'next'
   }
 
-  // TODO use inferred release channel after official 3.0 release
-  // const releaseTag = semver.prerelease(version)[0] || null
-
   step(`Publishing ${pkgName}...`)
   try {
     await runIfNotDry(
+      // note: use of yarn is intentional here as we rely on its publishing
+      // behavior.
       'yarn',
       [
         'publish',
@@ -495,7 +524,10 @@ async function publishPackage(pkgName, version, runIfNotDry) {
     }
   }
 }
-4.9 推送到 github
+```
+
+### 推送到 github
+```js
 // push to GitHub
 step('\nPushing to GitHub...')
 // 打 tag
@@ -504,7 +536,7 @@ await runIfNotDry('git', ['tag', `v${targetVersion}`])
 await runIfNotDry('git', ['push', 'origin', `refs/tags/v${targetVersion}`])
 // git push 所有改动到 远程  - github
 await runIfNotDry('git', ['push'])
-// yarn run release --dry
+// pnpm run release --dry
 
 // 如果传了这个参数则输出 可以用 git diff 看看更改
 
@@ -526,14 +558,12 @@ if (skippedPackages.length) {
   )
 }
 console.log()
-我们 yarn release --dry后，这块函数在终端输出的如下：
+```
 
-发布到github
-
-到这里我们就拆解分析完 main 函数了。
+到这里我们就拆解分析完 `main` 函数了。
 
 整个流程很清晰。
-
+```
 1. 确认要发布的版本
 2. 执行测试用例
 3. 更新所有包的版本号和内部 vue 相关依赖版本号
@@ -544,44 +574,15 @@ console.log()
 6. 提交代码
 7. 发布包
 8. 推送到 github
-用一张图总结则是：
+```
 
-vue 发布流程
-
-看完vue-next/scripts/release.js，感兴趣还可以看vue-next/scripts文件夹下其他代码，相对行数不多，但收益较大。
-
-5. 总结
+## 总结
 通过本文学习，我们学会了这些。
-
+```
 1. 熟悉 vuejs 发布流程
 2. 学会调试 nodejs 代码
 3. 动手优化公司项目发布流程
-同时建议自己动手用 VSCode 多调试，在终端多执行几次，多理解消化。
+```
+同时建议自己动手用 `VSCode` 多调试，在终端多执行几次，多理解消化。
 
-vuejs发布的文件很多代码我们可以直接复制粘贴修改，优化我们自己发布的流程。比如写小程序，相对可能发布频繁，完全可以使用这套代码，配合miniprogram-ci，再加上一些自定义，加以优化。
-
-关于小程序 ci 上传，再分享两篇文章。
-
-基于 CI 实现微信小程序的持续构建
-
-小打卡小程序自动化构建及发布的工程化实践 虽然文章里不是最新的 miniprogram-ci，但这篇场景写得比较全面。
-
-当然版本发布也可以用开源的 release-it。
-
-同时，我们可以：
-
-引入 git flow，管理git分支。估计很多人不知道windows git bash已经默认支持 git flow命令。
-
-引入 husky 和 lint-staged 提交commit时用ESLint等校验代码提交是否能够通过检测。
-
-引入 单元测试 jest，测试关键的工具函数等。
-
-引入 conventional-changelog
-
-引入 git-cz 交互式git commit。
-
-等等规范自己项目的流程。如果一个候选人，通过看vuejs发布的源码，积极主动优化自己项目。我觉得面试官会认为这个候选人比较加分。
-
-看开源项目源码的好处在于：一方面可以拓展视野，另外一方面可以为自己所用，收益相对较高。
-
-最后欢迎加我微信 ruochuan12 交流，参与 源码共读 活动，大家一起学习源码，共同进步。
+`vuejs`发布的文件很多代码我们可以直接复制粘贴修改，优化我们自己发布的流程。比如写小程序，相对可能发布频繁，完全可以使用这套代码，配合[miniprogram-ci](https://developers.weixin.qq.com/miniprogram/dev/devtools/ci.html)，再加上一些自定义，加以优化。
