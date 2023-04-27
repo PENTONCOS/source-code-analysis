@@ -14,3 +14,4 @@
 - [深入p-limit源码，学习限制并发数](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/深入p-limit源码，学习限制并发数.md)
 - [深入koa-compose源码，实现koa洋葱模型](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/深入koa-compose源码，实现koa洋葱模型.md)
 - [如何在给组件库新增组件的时候减少操作？](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/如何在给组件库新增组件的时候减少操作？.md)
+- [vscode插件：open-in-github-button原理解析](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/vscode插件：open-in-github-button原理解析.md)
