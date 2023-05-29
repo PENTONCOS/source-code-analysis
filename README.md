@@ -1,5 +1,6 @@
 # 记录在看源码过程中的一些心得
 
+- [如何给vite项目自动添加eslint](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/如何给vite项目自动添加eslint.md)
 - [arrify｜如何把一个值转换为一个数组？](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/arrify｜如何把一个值转换为一个数组？.md)
 - [omit.js的源码分析](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/omit.js的源码分析.md)
 - [Node.js的promisify源码解析](https://github.com/PENTONCOS/source-code-analysis/tree/main/md/Node.js的promisify源码解析.md)
