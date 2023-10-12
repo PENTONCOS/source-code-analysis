@@ -74,7 +74,7 @@ http-server -p 8081 .
 
 > 调试：在 `F12` 打开调试，`source` 面板，在例子中`const vm = new Vue({`打上断点。
 
-![](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/25981e9d61eb4f95bf60bfecb895d969~tplv-k3u1fbpfcp-zoom-in-crop-mark:3024:0:0:0.awebp?)
+![](https://img-blog.csdnimg.cn/15c14c3953bd47e0a175dda8cd3147af.png)
 
 刷新页面后按`F11`进入函数，这时断点就走进了 Vue 构造函数。
 
